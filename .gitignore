@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Custom ignored files for Mind Oasis
+*.pkg
+*.zip
+*.exe
+.DS_Store
