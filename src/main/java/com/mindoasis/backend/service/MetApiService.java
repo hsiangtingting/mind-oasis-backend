@@ -2,6 +2,7 @@ package com.mindoasis.backend.service;
 
 import com.mindoasis.backend.dto.MetArtworkDTO;
 import com.mindoasis.backend.dto.MetSearchResponse;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import java.util.Random;
@@ -54,7 +55,7 @@ public class MetApiService {
                 MetArtworkDTO art = restClient.get()
                         .uri("/objects/{id}", randomId)
                         .retrieve()
-                        .onStatus(status -> status.isError(), (request, response) -> {
+                        .onStatus(HttpStatusCode::isError, (request, response) -> {
                             throw new RuntimeException("Met API error status");
                         })
                         .body(MetArtworkDTO.class);
