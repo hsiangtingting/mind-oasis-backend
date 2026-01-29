@@ -19,6 +19,7 @@ public class JournalService{
 
     @Transactional
     public Journal createJournalWithArt(String theme, String userContent){
+        System.out.println("Service Ready! Target theme: " + theme);
         MetArtworkDTO artDTO = metApiService.getArtworkByTheme(theme);
 
         Journal journal = new Journal();

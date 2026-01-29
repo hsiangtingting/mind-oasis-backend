@@ -36,6 +36,9 @@ public class MetApiService {
         }
 
         String keyword = themeMapperService.getKeyword(theme);
+        if (keyword == null || keyword.isBlank()) {
+            keyword = "art"; // for empty input
+        }
 
         // no famous ones then return non-famous
         MetSearchResponse searchResult = fetchFromMet(keyword, true);

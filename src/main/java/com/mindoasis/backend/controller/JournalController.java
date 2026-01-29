@@ -1,21 +1,32 @@
 package com.mindoasis.backend.controller;
 
+import com.mindoasis.backend.dto.JournalRequest;
 import com.mindoasis.backend.model.Journal;
-import com.mindoasis.backend.repository.JournalRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mindoasis.backend.service.JournalService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/journals")
 @CrossOrigin(origins = "*")
-public class JournalController{
+public class JournalController {
 
-    @Autowired
-    private JournalRepository journalRepository;
+    private final JournalService journalService;
 
-    @PostMapping("/save")
-    public Journal createJournal(@RequestBody Journal journal){
+    public JournalController(JournalService journalService) {
+        this.journalService = journalService;
+    }
 
-        return journalRepository.save(journal);
+    /**
+     * achiever selected_theme - call Met api - storage in DB
+     */
+    @PostMapping
+    public ResponseEntity<Journal> createJournal(@RequestBody JournalRequest request) {
+        Journal savedJournal = journalService.createJournalWithArt(
+                request.getTheme(),
+                request.getContent()
+        );
+
+        return ResponseEntity.ok(savedJournal);
     }
 }
