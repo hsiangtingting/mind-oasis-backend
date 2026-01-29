@@ -21,46 +21,55 @@ public class MetApiService {
     }
 
     /**
-     * api calling counter : retryCount
+     * theme-match artwork
      */
     public MetArtworkDTO getArtworkByTheme(String theme) {
         return getValidArtworkWithRetry(theme, 0);
     }
 
     /**
-     * retry limit & return image url for sure
+     * try-catch logic
      */
     private MetArtworkDTO getValidArtworkWithRetry(String theme, int retryCount) {
+        // retry limit & return fall back
         if (retryCount >= 5) {
+            System.out.println("beyond limited retry, use fallback artwork");
             return getFallbackArtwork();
         }
 
-        String keyword = themeMapperService.getKeyword(theme);
-        if (keyword == null || keyword.isBlank()) {
-            keyword = "art"; // for empty input
-        }
+        try {
+            String keyword = themeMapperService.getKeyword(theme);
+            if (keyword == null) keyword = "Hope";
 
-        // no famous ones then return non-famous
-        MetSearchResponse searchResult = fetchFromMet(keyword, true);
-        if (isResultEmpty(searchResult)) {
-            searchResult = fetchFromMet(keyword, false);
-        }
-
-        // random pick
-        if (!isResultEmpty(searchResult)) {
-            Integer randomId = searchResult.objectIDs().get(random.nextInt(searchResult.objectIDs().size()));
-
-            MetArtworkDTO art = restClient.get()
-                    .uri("/objects/{id}", randomId)
-                    .retrieve()
-                    .body(MetArtworkDTO.class);
-
-            // Check: image url
-            if (art == null || art.primaryImage() == null || art.primaryImage().isBlank()) {
-                System.out.println("No image url (ID: " + randomId + ")，is trying " + (retryCount + 1) + " times retry");
-                return getValidArtworkWithRetry(theme, retryCount + 1);
+            // no famous ones return non-famous
+            MetSearchResponse searchResult = fetchFromMet(keyword, true);
+            if (isResultEmpty(searchResult)) {
+                searchResult = fetchFromMet(keyword, false);
             }
-            return art;
+
+            // random pick
+            if (!isResultEmpty(searchResult)) {
+                Integer randomId = searchResult.objectIDs().get(random.nextInt(searchResult.objectIDs().size()));
+
+                MetArtworkDTO art = restClient.get()
+                        .uri("/objects/{id}", randomId)
+                        .retrieve()
+                        .onStatus(status -> status.isError(), (request, response) -> {
+                            throw new RuntimeException("Met API error status");
+                        })
+                        .body(MetArtworkDTO.class);
+
+                // check image url
+                if (art == null || art.primaryImage() == null || art.primaryImage().isBlank()) {
+                    System.out.println("No image url (ID: " + randomId + ")，is trying " + (retryCount + 1) + " times retry");
+                    return getValidArtworkWithRetry(theme, retryCount + 1);
+                }
+                return art;
+            }
+        } catch (Exception e) {
+            System.out.println("API bad request: " + e.getMessage());
+            // time out
+            return getValidArtworkWithRetry(theme, retryCount + 1);
         }
 
         // change searching term
@@ -84,7 +93,7 @@ public class MetApiService {
     }
 
     /**
-     * fall back for no images
+     * fall back for no image
      */
     private MetArtworkDTO getFallbackArtwork() {
         return new MetArtworkDTO(
