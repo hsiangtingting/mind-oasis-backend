@@ -5,6 +5,9 @@ import com.mindoasis.backend.model.Journal;
 import com.mindoasis.backend.repository.JournalRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import com.mindoasis.backend.model.Journal;
+
 
 @Service
 public class JournalService{
@@ -36,5 +39,8 @@ public class JournalService{
         }
 
         return journalRepository.save(journal);
+    }
+    public List<Journal> getAllJournals() {
+        return journalRepository.findAll();
     }
 }
