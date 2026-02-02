@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/art")
-@CrossOrigin(origins = "${cors.allowed.origins:http://localhost:3000}")
+//@CrossOrigin(origins = "${cors.allowed.origins:http://localhost:3000}")
 public class ArtController {
 
     private final MetApiService metApiService;
