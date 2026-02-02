@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/journals")
 //replace * in production
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "${cors.allowed.origins:http://localhost:3000}")
 public class JournalController {
 
     private final JournalService journalService;
