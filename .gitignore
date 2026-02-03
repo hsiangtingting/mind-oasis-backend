@@ -37,3 +37,13 @@ build/
 *.zip
 *.exe
 .DS_Store
+src/main/resources/application.properties
+src/main/resources/application-*.properties
+*.env
+*.pem
+
+.DS_Store
+Thumbs.db
+
+*.log
+tmp/
