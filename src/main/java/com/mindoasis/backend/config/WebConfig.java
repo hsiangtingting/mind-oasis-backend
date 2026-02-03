@@ -3,20 +3,17 @@ package com.mindoasis.backend.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.beans.factory.annotation.Value;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${CORS_ALLOWED_ORIGINS:*}")
-    private String allowedOrigins;
-
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOrigins(allowedOrigins.split(","))
+        registry.addMapping("/**")
+                .allowedOrigins("https://main.d2j7tllfora5u1.amplifyapp.com")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }
 }
+
