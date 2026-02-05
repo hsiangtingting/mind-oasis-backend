@@ -31,7 +31,10 @@ public class AppUserController {
         AppUser user = userService.findByEmail(loginData.get("email"));
         if (user != null && BCrypt.checkpw(loginData.get("password"), user.getPassword())) {
             user.setPassword(null);
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(Map.of(
+                    "email", user.getEmail(),
+                    "token", user.getUuid()
+            ));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid account or password");
     }

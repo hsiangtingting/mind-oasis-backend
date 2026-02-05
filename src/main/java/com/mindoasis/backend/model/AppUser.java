@@ -11,15 +11,21 @@ public class AppUser {
     private Long id;
 
     @Column(unique = true, nullable = false)
+    private String uuid = java.util.UUID.randomUUID().toString();
+
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Column(nullable = false)
     private String password;
 
 
+    // Getters and Setters
     public AppUser() {}
 
-    // Getters and Setters
+    public String getUuid() { return uuid;}
+    public void setUuid(String uuid) { this.uuid = uuid;}
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
