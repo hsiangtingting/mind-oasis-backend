@@ -2,13 +2,17 @@ package com.mindoasis.backend.controller;
 
 import com.mindoasis.backend.dto.JournalRequest;
 import com.mindoasis.backend.model.Journal;
+import com.mindoasis.backend.repository.AppUserRepository;
 import com.mindoasis.backend.service.JournalService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/journals")
 //replace * in production
@@ -17,33 +21,35 @@ public class JournalController {
 
     private final JournalService journalService;
 
-    public JournalController(JournalService journalService) {
+    public JournalController(JournalService journalService, AppUserRepository appUserRepository) {
         this.journalService = journalService;
     }
 
-    /**
-     * achiever selected_theme - call Met api - storage in DB
-     */
     @PostMapping
-    public ResponseEntity<Journal> createJournal(@RequestBody JournalRequest request) {
+    public ResponseEntity<Journal> createJournal(
+            @RequestBody JournalRequest request,
+            @RequestParam(required = false) String userUuid) {
+
         try {
             Journal savedJournal = journalService.createJournalWithArt(
                     request.getTheme(),
-                    request.getContent()
+                    request.getContent(),
+                    userUuid
             );
 
             return new ResponseEntity<>(savedJournal, HttpStatus.CREATED);
         } catch (Exception e) {
-            System.err.println("Error creating journal: " + e.getMessage());
-            return new ResponseEntity<Journal>((Journal) null, HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("Error creating journal entry: {}", e.getMessage(), e);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    /**
-     * get all journals with artworks
-     */
+
     @GetMapping
-    public ResponseEntity<List<Journal>> getAllJournals() {
-        List<Journal> journals = journalService.getAllJournals();
-        return ResponseEntity.ok(journals);
+    public ResponseEntity<List<Journal>> getMyJournals(
+            @RequestParam(required = false) String userUuid) {
+        if (userUuid == null || userUuid.isBlank()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+        return ResponseEntity.ok(journalService.getJournalsByUserUuid(userUuid));
     }
 }

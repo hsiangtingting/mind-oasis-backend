@@ -1,5 +1,6 @@
 package com.mindoasis.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,9 +17,10 @@ public class Journal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private AppUser user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id",nullable =true)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private AppUser appUser;
 
     private String selectedTheme;
 
