@@ -28,14 +28,33 @@ public class AppUserController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> signIn(@RequestBody Map<String, String> loginData) {
-        AppUser user = userService.findByEmail(loginData.get("email"));
-        if (user != null && BCrypt.checkpw(loginData.get("password"), user.getPassword())) {
+
+        System.out.println("DEBUG [1] - Received loginData: " + loginData);
+
+        String email = loginData.get("email");
+        String password = loginData.get("password");
+
+        AppUser user = userService.findByEmail(email);
+
+        if (user == null) {
+            System.out.println("DEBUG [2] - User not found in DB for email: [" + email + "]");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+        }
+
+        System.out.println("DEBUG [3] - User found! DB Hashed Password: [" + user.getPassword() + "]");
+
+        boolean isMatch = BCrypt.checkpw(password, user.getPassword());
+
+        System.out.println("DEBUG [4] - BCrypt match result: " + isMatch);
+
+        if (isMatch) {
             user.setPassword(null);
             return ResponseEntity.ok(Map.of(
                     "email", user.getEmail(),
                     "token", user.getUuid()
             ));
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid account or password");
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+        }
     }
-}
