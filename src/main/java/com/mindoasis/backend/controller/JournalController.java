@@ -52,4 +52,22 @@ public class JournalController {
         }
         return ResponseEntity.ok(journalService.getJournalsByUserUuid(userUuid));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteJournal(@PathVariable Long id) {
+        log.info("Delete request，journal ID: {}", id);
+        try {
+            boolean deleted = journalService.deleteJournalById(id);
+
+            if (deleted) {
+                return ResponseEntity.noContent().build();
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            log.error("Error occurred: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
+

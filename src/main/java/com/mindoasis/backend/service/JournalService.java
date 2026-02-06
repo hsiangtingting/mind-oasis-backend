@@ -71,6 +71,14 @@ public class JournalService {
         return journalRepository.findByAppUserUuid(userUuid);
     }
 
+
+    public boolean deleteJournalById(Long id) {
+        if (journalRepository.existsById(id)) {
+            journalRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
 //    public List<Journal> getAllJournals() {
 //        return journalRepository.findAll();
 //    }
